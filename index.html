@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产配置模拟器 / 資産配分シミュレーター</title>
+    <meta name="description" content="中国境内资产配置模拟器 - 从社会人到退休，为每个人生阶段量身定制投资方案">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">📊</div>
+                    <div class="logo-text">
+                        <h1 id="app-title">资产配置模拟器</h1>
+                        <p id="app-subtitle">从职场新人到退休生活，精心规划每一分资产</p>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <button class="lang-toggle" id="lang-toggle" onclick="toggleLanguage()">
+                        <span class="lang-icon">🌐</span>
+                        <span id="lang-label">日本語</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Input Section -->
+            <section class="input-section glass-card">
+                <h2 id="input-title">📋 基本设置</h2>
+
+                <!-- Initial Investment -->
+                <div class="input-group">
+                    <label id="initial-label">初始投资金额（万元）</label>
+                    <div class="amount-input-wrapper">
+                        <input type="range" id="initial-amount" min="1" max="500" value="100" step="1"
+                            oninput="updateAll()">
+                        <div class="amount-display">
+                            <span id="amount-value" class="amount-number">100</span>
+                            <span id="amount-unit" class="amount-unit">万元</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Starting Age — expanded range -->
+                <div class="input-group">
+                    <label id="age-label">起始年龄</label>
+                    <div class="amount-input-wrapper">
+                        <input type="range" id="start-age" min="22" max="75" value="60" step="1" oninput="updateAll()">
+                        <div class="amount-display">
+                            <span id="age-value" class="amount-number">60</span>
+                            <span id="age-unit" class="amount-unit">岁</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Years -->
+                <div class="input-group">
+                    <label id="years-label">模拟期间（年）</label>
+                    <div class="amount-input-wrapper">
+                        <input type="range" id="sim-years" min="5" max="40" value="20" step="1" oninput="updateAll()">
+                        <div class="amount-display">
+                            <span id="years-value" class="amount-number">20</span>
+                            <span id="years-unit" class="amount-unit">年</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inflation Rate -->
+                <div class="input-group">
+                    <label id="inflation-label">年通胀率（%）</label>
+                    <div class="amount-input-wrapper">
+                        <input type="range" id="inflation-rate" min="0" max="5" value="2.5" step="0.1"
+                            oninput="updateAll()">
+                        <div class="amount-display">
+                            <span id="inflation-value" class="amount-number">2.5</span>
+                            <span class="amount-unit">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Pension -->
+                <div class="input-group">
+                    <label id="pension-label">每月养老金/被动收入（元）</label>
+                    <div class="amount-input-wrapper">
+                        <input type="range" id="monthly-pension" min="0" max="20000" value="3000" step="100"
+                            oninput="updateAll()">
+                        <div class="amount-display">
+                            <span id="pension-value" class="amount-number">3,000</span>
+                            <span id="pension-unit" class="amount-unit">元/月</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Age-based Recommendation Banner -->
+            <section class="recommendation-section glass-card">
+                <h2 id="recommend-section-title">💡 年龄适配推荐</h2>
+                <div id="recommendation-banner" class="recommendation-banner">
+                    <!-- Dynamically populated -->
+                </div>
+            </section>
+
+            <!-- Preset Patterns (5 patterns) -->
+            <section class="preset-section glass-card">
+                <h2 id="preset-title">🎯 投资组合方案</h2>
+                <div id="preset-grid" class="preset-grid">
+                    <!-- Generated by JS -->
+                </div>
+            </section>
+
+            <!-- Allocation Sliders -->
+            <section class="allocation-section glass-card">
+                <h2 id="alloc-title">⚙️ 资产配置比例</h2>
+                <p id="alloc-desc" class="section-desc">拖动滑块自定义配置比例，总计必须为100%</p>
+                <div class="total-bar">
+                    <span id="total-label">合计：</span>
+                    <span id="total-pct" class="total-pct">100%</span>
+                    <span id="total-status" class="total-status ok">✓</span>
+                </div>
+                <div id="allocation-sliders" class="allocation-sliders">
+                    <!-- Generated by JS -->
+                </div>
+            </section>
+
+            <!-- Results Dashboard -->
+            <section class="results-section">
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">💰</div>
+                        <div class="kpi-details">
+                            <span id="kpi-yield-label" class="kpi-label">预期年化收益率</span>
+                            <span id="kpi-yield" class="kpi-value accent-green">3.25%</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">📅</div>
+                        <div class="kpi-details">
+                            <span id="kpi-monthly-label" class="kpi-label">月均收入</span>
+                            <span id="kpi-monthly" class="kpi-value accent-blue">2,708 元</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">📈</div>
+                        <div class="kpi-details">
+                            <span id="kpi-total-label" class="kpi-label">累计收入总额</span>
+                            <span id="kpi-total" class="kpi-value accent-purple">588,500 元</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">🛡️</div>
+                        <div class="kpi-details">
+                            <span id="kpi-real-label" class="kpi-label">实质购买力（末年月）</span>
+                            <span id="kpi-real" class="kpi-value accent-orange">1,270 元</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-grid">
+                    <div class="chart-card glass-card">
+                        <h3 id="pie-title">资产配置比例</h3>
+                        <div class="chart-wrapper pie-wrapper">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card glass-card chart-card-wide">
+                        <h3 id="line-title">资产推移与累计收入</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Listings -->
+                <section class="products-section glass-card">
+                    <h3 id="products-title">🏦 各资产类别推荐投资标的（中国境内）</h3>
+                    <p id="products-desc" class="section-desc">以下为各资产类别中可选择的具体投资标的参考列表（仅包含配置比例 > 0% 的类别）</p>
+                    <div id="product-listings">
+                        <!-- Generated by JS -->
+                    </div>
+                </section>
+
+                <!-- Cashflow Table -->
+                <div class="table-card glass-card">
+                    <h3 id="table-title">📊 年度现金流明细</h3>
+                    <div class="table-wrapper">
+                        <table id="cashflow-table">
+                            <thead>
+                                <tr>
+                                    <th id="th-age">年龄</th>
+                                    <th id="th-year">年份</th>
+                                    <th id="th-balance">资产残高</th>
+                                    <th id="th-annual">年收入</th>
+                                    <th id="th-monthly">月收入</th>
+                                    <th id="th-pension-income">养老金+投资</th>
+                                    <th id="th-cumulative">累计收入</th>
+                                    <th id="th-real">实质购买力/月</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cashflow-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Risk Meter -->
+                <div class="risk-card glass-card">
+                    <h3 id="risk-title">⚠️ 风险评估</h3>
+                    <div class="risk-bars">
+                        <div class="risk-item">
+                            <span id="risk-label-1" class="risk-name">最大预估亏损</span>
+                            <div class="risk-bar-track">
+                                <div id="risk-bar-1" class="risk-bar-fill" style="width: 20%"></div>
+                            </div>
+                            <span id="risk-value-1" class="risk-val">-6.75%</span>
+                        </div>
+                        <div class="risk-item">
+                            <span id="risk-label-2" class="risk-name">安全资产占比</span>
+                            <div class="risk-bar-track safe">
+                                <div id="risk-bar-2" class="risk-bar-fill safe" style="width: 35%"></div>
+                            </div>
+                            <span id="risk-value-2" class="risk-val">35%</span>
+                        </div>
+                        <div class="risk-item">
+                            <span id="risk-label-3" class="risk-name">流动性评分</span>
+                            <div class="risk-bar-track info">
+                                <div id="risk-bar-3" class="risk-bar-fill info" style="width: 70%"></div>
+                            </div>
+                            <span id="risk-value-3" class="risk-val">70/100</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Privacy & Legal Disclaimer -->
+                <section class="disclaimer-section glass-card">
+                    <h3 id="privacy-title">🔒 隐私保护与免责声明</h3>
+
+                    <!-- Privacy - Chinese -->
+                    <div class="disclaimer-block privacy-block">
+                        <h4 id="privacy-zh-subtitle">🛡️ 您的数据安全</h4>
+                        <p id="privacy-zh-text-1" class="disclaimer-text">
+                            本工具的<strong>所有计算均在您的浏览器本地完成</strong>。您输入的所有信息（投资金额、年龄、配置比例等）<strong>不会发送到任何服务器</strong>，运营者无法查看、收集或存储您的任何数据。
+                        </p>
+                        <p id="privacy-zh-text-2" class="disclaimer-text">技术说明：本页面为纯前端静态网页（HTML +
+                            JavaScript），不包含任何后端数据库、用户登录系统或数据上传接口。关闭浏览器后，您输入的所有信息将自动消失，不会留下任何痕迹。</p>
+                    </div>
+
+                    <!-- Privacy - Japanese -->
+                    <div class="disclaimer-block privacy-block">
+                        <h4>🛡️ あなたのデータの安全性</h4>
+                        <p class="disclaimer-text">
+                            本ツールの<strong>全ての計算はお使いのブラウザ内で完結</strong>します。入力された全ての情報（投資額、年齢、配分比率等）は<strong>一切サーバーに送信されません</strong>。運営者がデータを閲覧・収集・保存することは技術的に不可能です。
+                        </p>
+                        <p class="disclaimer-text">技術説明：本ページは純粋なフロントエンド静的ウェブページ（HTML +
+                            JavaScript）であり、バックエンドデータベース、ユーザーログインシステム、データアップロード機能は一切含まれていません。ブラウザを閉じると、入力された全ての情報は自動的に消去され、一切の痕跡が残りません。
+                        </p>
+                    </div>
+
+                    <!-- Legal - China -->
+                    <div class="disclaimer-block legal-block">
+                        <h4 id="legal-zh-title">【风险揭示与免责声明】</h4>
+                        <ol class="disclaimer-list">
+                            <li id="legal-zh-1">
+                                <strong>非投资建议：</strong>本工具由个人运营，未持有中华人民共和国证券监督管理委员会（CSRC）颁发的任何证券投资咨询或相关金融业务牌照。本页面所有信息<strong>仅供个人学习和参考之用，不构成任何形式的投资建议、投资咨询意见</strong>，也不应被视为购买、出售任何证券或金融产品的要约、招揽或推荐。
+                            </li>
+                            <li id="legal-zh-2">
+                                <strong>投资风险提示：</strong>证券投资具有固有风险。市场价格可能波动，投资品种价值可升可跌，<strong>您投入的本金可能遭受损失</strong>。过往业绩不代表未来表现，历史数据不预示未来结果。
+                            </li>
+                            <li id="legal-zh-3"><strong>独立判断：</strong>在做出任何投资决策之前，您应根据自身情况进行独立判断，并寻求合格金融专业人士的独立建议。</li>
+                            <li id="legal-zh-4"><strong>适用法律：</strong>本声明适用中华人民共和国法律，根据《中华人民共和国证券法》及相关法规。</li>
+                        </ol>
+                    </div>
+
+                    <!-- Legal - Japan -->
+                    <div class="disclaimer-block legal-block">
+                        <h4 id="legal-ja-title">【金融商品取引法に基づく表示・免責事項】</h4>
+                        <ol class="disclaimer-list">
+                            <li id="legal-ja-1">
+                                <strong>非登録業者表示：</strong>本サイトは個人が運営しており、日本の金融商品取引法に基づく金融商品取引業の登録を受けておりません。本サイトの全ての情報は、一般的な情報提供および学習目的のみを意図しており、<strong>特定の金融商品の購入・売却を推奨するものではありません。</strong>
+                            </li>
+                            <li id="legal-ja-2">
+                                <strong>投資リスク：</strong>投資にはリスクが伴い、元本の損失が生じる可能性があります。金融商品の価格は変動し、過去の実績は将来の成果を保証しません。
+                            </li>
+                            <li id="legal-ja-3"><strong>自己責任原則：</strong>投資判断はご自身の責任で行ってください。専門の金融アドバイザーに相談されることを推奨します。
+                            </li>
+                        </ol>
+                    </div>
+                </section>
+
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p id="footer-text">⚠️ 本工具仅供参考，不构成投资建议。实际投资请咨询专业理财顾问。</p>
+            <p class="footer-sub">投资有风险，入市需谨慎 | 投資にはリスクが伴います</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
