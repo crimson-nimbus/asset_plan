@@ -47,21 +47,24 @@
                     <label id="initial-label">初始投资金额（万元）</label>
                     <div class="amount-input-wrapper">
                         <input type="range" id="initial-amount" min="1" max="500" value="100" step="1"
-                            oninput="updateAll()">
+                            oninput="syncFromSlider('initial-amount')">
                         <div class="amount-display">
-                            <span id="amount-value" class="amount-number">100</span>
+                            <input type="number" id="amount-value" class="amount-number-input" value="100" min="1"
+                                max="500" step="1" oninput="syncFromNumber('amount-value', 'initial-amount')">
                             <span id="amount-unit" class="amount-unit">万元</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Starting Age — expanded range -->
+                <!-- Starting Age -->
                 <div class="input-group">
                     <label id="age-label">起始年龄</label>
                     <div class="amount-input-wrapper">
-                        <input type="range" id="start-age" min="22" max="75" value="60" step="1" oninput="updateAll()">
+                        <input type="range" id="start-age" min="22" max="75" value="22" step="1"
+                            oninput="syncFromSlider('start-age')">
                         <div class="amount-display">
-                            <span id="age-value" class="amount-number">60</span>
+                            <input type="number" id="age-value" class="amount-number-input" value="22" min="22" max="75"
+                                step="1" oninput="syncFromNumber('age-value', 'start-age')">
                             <span id="age-unit" class="amount-unit">岁</span>
                         </div>
                     </div>
@@ -71,9 +74,11 @@
                 <div class="input-group">
                     <label id="years-label">模拟期间（年）</label>
                     <div class="amount-input-wrapper">
-                        <input type="range" id="sim-years" min="5" max="40" value="20" step="1" oninput="updateAll()">
+                        <input type="range" id="sim-years" min="5" max="40" value="20" step="1"
+                            oninput="syncFromSlider('sim-years')">
                         <div class="amount-display">
-                            <span id="years-value" class="amount-number">20</span>
+                            <input type="number" id="years-value" class="amount-number-input" value="20" min="5"
+                                max="40" step="1" oninput="syncFromNumber('years-value', 'sim-years')">
                             <span id="years-unit" class="amount-unit">年</span>
                         </div>
                     </div>
@@ -84,9 +89,10 @@
                     <label id="inflation-label">年通胀率（%）</label>
                     <div class="amount-input-wrapper">
                         <input type="range" id="inflation-rate" min="0" max="5" value="2.5" step="0.1"
-                            oninput="updateAll()">
+                            oninput="syncFromSlider('inflation-rate')">
                         <div class="amount-display">
-                            <span id="inflation-value" class="amount-number">2.5</span>
+                            <input type="number" id="inflation-value" class="amount-number-input" value="2.5" min="0"
+                                max="5" step="0.1" oninput="syncFromNumber('inflation-value', 'inflation-rate')">
                             <span class="amount-unit">%</span>
                         </div>
                     </div>
@@ -97,9 +103,10 @@
                     <label id="pension-label">每月养老金/被动收入（元）</label>
                     <div class="amount-input-wrapper">
                         <input type="range" id="monthly-pension" min="0" max="20000" value="3000" step="100"
-                            oninput="updateAll()">
+                            oninput="syncFromSlider('monthly-pension')">
                         <div class="amount-display">
-                            <span id="pension-value" class="amount-number">3,000</span>
+                            <input type="number" id="pension-value" class="amount-number-input" value="3000" min="0"
+                                max="20000" step="100" oninput="syncFromNumber('pension-value', 'monthly-pension')">
                             <span id="pension-unit" class="amount-unit">元/月</span>
                         </div>
                     </div>
@@ -110,9 +117,11 @@
                     <label id="monthly-invest-label">每月追加投资（元）</label>
                     <div class="amount-input-wrapper">
                         <input type="range" id="monthly-invest" min="0" max="50000" value="0" step="500"
-                            oninput="updateAll()">
+                            oninput="syncFromSlider('monthly-invest')">
                         <div class="amount-display">
-                            <span id="monthly-invest-value" class="amount-number">0</span>
+                            <input type="number" id="monthly-invest-value" class="amount-number-input" value="0" min="0"
+                                max="50000" step="500"
+                                oninput="syncFromNumber('monthly-invest-value', 'monthly-invest')">
                             <span id="monthly-invest-unit" class="amount-unit">元/月</span>
                         </div>
                     </div>
@@ -276,11 +285,19 @@
                                     <th id="th-monthly">月现金收入</th>
                                     <th id="th-pension-income">养老金+投资</th>
                                     <th id="th-cumulative">累计投入</th>
-                                    <th id="th-real">实质购买力/月</th>
+                                    <th id="th-real">实质购买力/月 <span class="th-help" id="th-real-help" title="">ⓘ</span>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="cashflow-body"></tbody>
                         </table>
+                    </div>
+                    <!-- Real Purchasing Power Explanation -->
+                    <div class="table-footnote" id="real-power-note">
+                        <p id="real-power-note-text">
+                            💡
+                            <strong>实质购买力</strong>指将未来的月现金收入按通胀率折算为今天的货币价值。例如，若年通胀率为2.5%，10年后的3,000元仅相当于今天的约2,344元购买力。该数值持续下降是正常现象，反映了通胀对长期收入的侵蚀效果。
+                        </p>
                     </div>
                 </div>
 

@@ -237,6 +237,8 @@ const I18N = {
         riskLabel2: '安全资产占比',
         riskLabel3: '流动性评分',
         footerText: '⚠️ 本工具仅供参考，不构成投资建议。实际投资请咨询专业理财顾问。',
+        realPowerNote: '💡 实质购买力指将未来的月现金收入按通胀率折算为今天的货币价值。例如，若年通胀率为2.5%，10年后的3,000元仅相当于今天的约2,344元购买力。该数值持续下降是正常现象，反映了通胀对长期收入的侵蚀效果。',
+        realPowerHelp: '将未来收入按通胀折算为今天的价值',
         productsTitle: '🔍 各资产类别 — 如何查找投资产品',
         productsDesc: '以下为各资产类别的概述及搜索方法指引。请在相关平台自行搜索以下关键词查找适合的产品（仅显示配置比例 > 0% 的类别）',
         guideKeywords: '搜索关键词',
@@ -308,6 +310,8 @@ const I18N = {
         riskLabel2: '安全資産比率',
         riskLabel3: '流動性スコア',
         footerText: '⚠️ 本ツールは参考情報であり、投資助言ではありません。実際の投資判断は専門家にご相談ください。',
+        realPowerNote: '💡 実質購買力とは、将来の月間現金収入をインフレ率で割り引き、現在の貨幣価値に換算したものです。例えば年率2.5%のインフレ下では、10年後の3,000元は今日の約2,344元の購買力に相当します。この数値が年々低下するのは正常な現象で、インフレが長期的な収入を侵食する効果を反映しています。',
+        realPowerHelp: '将来の収入をインフレで現在価値に換算',
         productsTitle: '🔍 資産クラス別 — 投資商品の探し方ガイド',
         productsDesc: '各資産クラスの概要と検索キーワードをご案内します。各プラットフォームでキーワード検索してご自身に合った商品をお探しください（配分>0%のクラスのみ表示）',
         guideKeywords: '検索キーワード',
@@ -395,6 +399,12 @@ function applyLanguage() {
         const el = document.getElementById(id);
         if (el) el.textContent = t(key);
     }
+
+    // Update real purchasing power note and help tooltip
+    const noteEl = document.getElementById('real-power-note-text');
+    if (noteEl) noteEl.innerHTML = t('realPowerNote');
+    const helpEl = document.getElementById('th-real-help');
+    if (helpEl) helpEl.title = t('realPowerHelp');
 
     // Update allocation slider labels
     PRODUCTS.forEach(p => {
@@ -925,13 +935,13 @@ function updateLineChart(cashflow) {
 function updateAll() {
     const inputs = getInputs();
 
-    // Update display values
-    document.getElementById('amount-value').textContent = inputs.initialAmount / 10000;
-    document.getElementById('years-value').textContent = inputs.simYears;
-    document.getElementById('inflation-value').textContent = (inputs.inflation * 100).toFixed(1);
-    document.getElementById('age-value').textContent = inputs.startAge;
-    document.getElementById('pension-value').textContent = inputs.monthlyPension.toLocaleString();
-    document.getElementById('monthly-invest-value').textContent = inputs.monthlyInvest.toLocaleString();
+    // Update display values (number inputs use .value)
+    document.getElementById('amount-value').value = inputs.initialAmount / 10000;
+    document.getElementById('years-value').value = inputs.simYears;
+    document.getElementById('inflation-value').value = (inputs.inflation * 100).toFixed(1);
+    document.getElementById('age-value').value = inputs.startAge;
+    document.getElementById('pension-value').value = inputs.monthlyPension;
+    document.getElementById('monthly-invest-value').value = inputs.monthlyInvest;
 
     // Update reinvest toggle label
     updateReinvestLabel();
@@ -1010,11 +1020,45 @@ function updateAll() {
     });
 }
 
+// ===== SLIDER ↔ NUMBER INPUT SYNC =====
+const SLIDER_NUMBER_MAP = {
+    'initial-amount': 'amount-value',
+    'start-age': 'age-value',
+    'sim-years': 'years-value',
+    'inflation-rate': 'inflation-value',
+    'monthly-pension': 'pension-value',
+    'monthly-invest': 'monthly-invest-value',
+};
+
+function syncFromSlider(sliderId) {
+    const slider = document.getElementById(sliderId);
+    const numId = SLIDER_NUMBER_MAP[sliderId];
+    if (slider && numId) {
+        document.getElementById(numId).value = slider.value;
+    }
+    updateAll();
+}
+
+function syncFromNumber(numId, sliderId) {
+    const numInput = document.getElementById(numId);
+    const slider = document.getElementById(sliderId);
+    if (numInput && slider) {
+        let val = parseFloat(numInput.value);
+        const min = parseFloat(slider.min);
+        const max = parseFloat(slider.max);
+        if (isNaN(val)) return;
+        if (val < min) val = min;
+        if (val > max) val = max;
+        slider.value = val;
+    }
+    updateAll();
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
     buildSliders();
     // Default: use age-based recommendation
-    const age = parseInt(document.getElementById('start-age').value) || 60;
+    const age = parseInt(document.getElementById('start-age').value) || 22;
     const profile = getAgeProfile(age);
     applyPresetByKey(profile.key);
 });
