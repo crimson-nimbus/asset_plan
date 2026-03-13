@@ -104,6 +104,56 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Monthly Additional Investment -->
+                <div class="input-group">
+                    <label id="monthly-invest-label">每月追加投资（元）</label>
+                    <div class="amount-input-wrapper">
+                        <input type="range" id="monthly-invest" min="0" max="50000" value="0" step="500"
+                            oninput="updateAll()">
+                        <div class="amount-display">
+                            <span id="monthly-invest-value" class="amount-number">0</span>
+                            <span id="monthly-invest-unit" class="amount-unit">元/月</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-divider"></div>
+
+                <!-- Dividend Reinvestment Toggle -->
+                <div class="input-group toggle-group">
+                    <label id="reinvest-label">配当再投资</label>
+                    <div class="toggle-wrapper">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="reinvest-toggle" onchange="updateAll()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span id="reinvest-status" class="toggle-status">关闭（现金领取）</span>
+                    </div>
+                </div>
+
+                <!-- Capital Gain Mode -->
+                <div class="input-group capital-mode-group">
+                    <label id="capital-mode-label">资本增值处理方式</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="capital-mode" value="accumulate" checked onchange="updateAll()">
+                            <span class="radio-custom"></span>
+                            <span id="capital-opt-accumulate-text">含蓄增值（持有不卖）</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="capital-mode" value="annual-realize" onchange="updateAll()">
+                            <span class="radio-custom"></span>
+                            <span id="capital-opt-realize-text">每年实现收益</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="capital-mode" value="reinvest" onchange="updateAll()">
+                            <span class="radio-custom"></span>
+                            <span id="capital-opt-reinvest-text">实现后再投资</span>
+                        </label>
+                    </div>
+                    <p id="capital-mode-desc" class="capital-mode-desc">资本增值保留在资产中，不进行卖出操作</p>
+                </div>
             </section>
 
             <!-- Age-based Recommendation Banner -->
@@ -143,21 +193,35 @@
                     <div class="kpi-card glass-card">
                         <div class="kpi-icon">💰</div>
                         <div class="kpi-details">
-                            <span id="kpi-yield-label" class="kpi-label">预期年化收益率</span>
-                            <span id="kpi-yield" class="kpi-value accent-green">3.25%</span>
-                        </div>
-                    </div>
-                    <div class="kpi-card glass-card">
-                        <div class="kpi-icon">📅</div>
-                        <div class="kpi-details">
-                            <span id="kpi-monthly-label" class="kpi-label">月均收入</span>
-                            <span id="kpi-monthly" class="kpi-value accent-blue">2,708 元</span>
+                            <span id="kpi-income-yield-label" class="kpi-label">预期配当收益率</span>
+                            <span id="kpi-income-yield" class="kpi-value accent-green">2.50%</span>
                         </div>
                     </div>
                     <div class="kpi-card glass-card">
                         <div class="kpi-icon">📈</div>
                         <div class="kpi-details">
-                            <span id="kpi-total-label" class="kpi-label">累计收入总额</span>
+                            <span id="kpi-capital-yield-label" class="kpi-label">预期资本增值率</span>
+                            <span id="kpi-capital-yield" class="kpi-value accent-cyan">0.50%</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">🎯</div>
+                        <div class="kpi-details">
+                            <span id="kpi-total-yield-label" class="kpi-label">预期综合收益率</span>
+                            <span id="kpi-total-yield" class="kpi-value accent-purple">3.00%</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">📅</div>
+                        <div class="kpi-details">
+                            <span id="kpi-monthly-label" class="kpi-label">月均现金收入</span>
+                            <span id="kpi-monthly" class="kpi-value accent-blue">2,708 元</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">🏦</div>
+                        <div class="kpi-details">
+                            <span id="kpi-total-label" class="kpi-label">期末资产总额</span>
                             <span id="kpi-total" class="kpi-value accent-purple">588,500 元</span>
                         </div>
                     </div>
@@ -179,7 +243,7 @@
                         </div>
                     </div>
                     <div class="chart-card glass-card chart-card-wide">
-                        <h3 id="line-title">资产推移与累计收入</h3>
+                        <h3 id="line-title">资产推移与累计投入</h3>
                         <div class="chart-wrapper">
                             <canvas id="lineChart"></canvas>
                         </div>
@@ -188,8 +252,9 @@
 
                 <!-- Product Listings -->
                 <section class="products-section glass-card">
-                    <h3 id="products-title">🏦 各资产类别推荐投资标的（中国境内）</h3>
-                    <p id="products-desc" class="section-desc">以下为各资产类别中可选择的具体投资标的参考列表（仅包含配置比例 > 0% 的类别）</p>
+                    <h3 id="products-title">🔍 各资产类别 — 如何查找投资产品</h3>
+                    <p id="products-desc" class="section-desc">以下为各资产类别的概述及搜索方法指引。请在相关平台自行搜索以下关键词查找适合的产品（仅显示配置比例 > 0%
+                        的类别）</p>
                     <div id="product-listings">
                         <!-- Generated by JS -->
                     </div>
@@ -205,10 +270,12 @@
                                     <th id="th-age">年龄</th>
                                     <th id="th-year">年份</th>
                                     <th id="th-balance">资产残高</th>
-                                    <th id="th-annual">年收入</th>
-                                    <th id="th-monthly">月收入</th>
+                                    <th id="th-contribution">追加投资</th>
+                                    <th id="th-income">配当收入</th>
+                                    <th id="th-capital">资本增值</th>
+                                    <th id="th-monthly">月现金收入</th>
                                     <th id="th-pension-income">养老金+投资</th>
-                                    <th id="th-cumulative">累计收入</th>
+                                    <th id="th-cumulative">累计投入</th>
                                     <th id="th-real">实质购买力/月</th>
                                 </tr>
                             </thead>

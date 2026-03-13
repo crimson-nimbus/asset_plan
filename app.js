@@ -1,19 +1,21 @@
 /* ===================================
    PORTFOLIO SIMULATOR — APP LOGIC
    Enhanced: All-age support, age-based
-   recommendations, specific product listings
+   recommendations, monthly contributions,
+   dividend reinvestment, capital gain modes
    =================================== */
 
 // ===== CONFIGURATION =====
+// Income = 配当・利息（インカムゲイン）, Capital = 値上がり益（キャピタルゲイン）
 const PRODUCTS = [
-    { id: 'deposit', color: '#60a5fa', yieldLow: 1.3, yieldHigh: 1.55, riskMaxLoss: 0, liquidityScore: 60 },
-    { id: 'bond', color: '#34d399', yieldLow: 1.8, yieldHigh: 2.0, riskMaxLoss: 0, liquidityScore: 60 },
-    { id: 'wealth', color: '#a78bfa', yieldLow: 3.5, yieldHigh: 4.0, riskMaxLoss: 3, liquidityScore: 20 },
-    { id: 'insurance', color: '#f472b6', yieldLow: 2.0, yieldHigh: 3.5, riskMaxLoss: 2, liquidityScore: 10 },
-    { id: 'reits', color: '#fbbf24', yieldLow: 5.0, yieldHigh: 7.0, riskMaxLoss: 15, liquidityScore: 75 },
-    { id: 'dividend', color: '#f87171', yieldLow: 4.0, yieldHigh: 5.0, riskMaxLoss: 25, liquidityScore: 90 },
-    { id: 'stock', color: '#22d3ee', yieldLow: 6.0, yieldHigh: 10.0, riskMaxLoss: 35, liquidityScore: 95 },
-    { id: 'gold', color: '#facc15', yieldLow: 0, yieldHigh: 0, riskMaxLoss: 15, liquidityScore: 80 },
+    { id: 'deposit', color: '#60a5fa', incomeLow: 1.3, incomeHigh: 1.55, capitalLow: 0, capitalHigh: 0, riskMaxLoss: 0, liquidityScore: 60 },
+    { id: 'bond', color: '#34d399', incomeLow: 1.8, incomeHigh: 2.0, capitalLow: 0, capitalHigh: 0, riskMaxLoss: 0, liquidityScore: 60 },
+    { id: 'wealth', color: '#a78bfa', incomeLow: 2.5, incomeHigh: 3.5, capitalLow: 0, capitalHigh: 0.5, riskMaxLoss: 3, liquidityScore: 20 },
+    { id: 'insurance', color: '#f472b6', incomeLow: 2.0, incomeHigh: 2.5, capitalLow: 0, capitalHigh: 1.0, riskMaxLoss: 2, liquidityScore: 10 },
+    { id: 'reits', color: '#fbbf24', incomeLow: 3.0, incomeHigh: 5.0, capitalLow: -1.0, capitalHigh: 2.0, riskMaxLoss: 15, liquidityScore: 75 },
+    { id: 'dividend', color: '#f87171', incomeLow: 3.0, incomeHigh: 5.0, capitalLow: 0, capitalHigh: 3.0, riskMaxLoss: 25, liquidityScore: 90 },
+    { id: 'stock', color: '#22d3ee', incomeLow: 0.5, incomeHigh: 1.5, capitalLow: 3.0, capitalHigh: 8.0, riskMaxLoss: 35, liquidityScore: 95 },
+    { id: 'gold', color: '#facc15', incomeLow: 0, incomeHigh: 0, capitalLow: 2.0, capitalHigh: 8.0, riskMaxLoss: 15, liquidityScore: 80 },
 ];
 
 // ===== AGE-BASED PRESETS =====
@@ -195,24 +197,40 @@ const I18N = {
         ageUnit: '岁',
         pensionLabel: '每月养老金/被动收入（元）',
         pensionUnit: '元/月',
+        monthlyInvestLabel: '每月追加投资（元）',
+        monthlyInvestUnit: '元/月',
+        reinvestLabel: '配当再投资',
+        reinvestOn: '开启（再投资）',
+        reinvestOff: '关闭（现金领取）',
+        capitalModeLabel: '资本增值处理方式',
+        capitalAccumulate: '含蓄增值（持有不卖）',
+        capitalRealize: '每年实现收益',
+        capitalReinvest: '实现后再投资',
+        capitalDesc_accumulate: '资本增值保留在资产中，不进行卖出操作',
+        capitalDesc_annualRealize: '每年卖出增值部分，作为现金收入',
+        capitalDesc_reinvest: '每年卖出增值部分后重新投入，实现复利增长',
         presetTitle: '🎯 投资组合方案',
         allocTitle: '⚙️ 资产配置比例',
         allocDesc: '拖动滑块自定义配置比例，总计必须为100%',
         totalLabel: '合计：',
-        kpiYieldLabel: '预期年化收益率',
-        kpiMonthlyLabel: '月均收入',
-        kpiTotalLabel: '累计收入总额',
+        kpiIncomeYieldLabel: '预期配当收益率',
+        kpiCapitalYieldLabel: '预期资本增值率',
+        kpiTotalYieldLabel: '预期综合收益率',
+        kpiMonthlyLabel: '月均现金收入',
+        kpiTotalLabel: '期末资产总额',
         kpiRealLabel: '实质购买力（末年月）',
         pieTitle: '资产配置比例',
-        lineTitle: '资产推移与累计收入',
+        lineTitle: '资产推移与累计投入',
         tableTitle: '📊 年度现金流明细',
         thAge: '年龄',
         thYear: '年份',
         thBalance: '资产残高',
-        thAnnual: '年收入',
-        thMonthly: '月收入',
+        thContribution: '追加投资',
+        thIncome: '配当收入',
+        thCapital: '资本增值',
+        thMonthly: '月现金收入',
         thPensionIncome: '养老金+投资',
-        thCumulative: '累计收入',
+        thCumulative: '累计投入',
         thReal: '实质购买力/月',
         riskTitle: '⚠️ 风险评估',
         riskLabel1: '最大预估亏损',
@@ -250,24 +268,40 @@ const I18N = {
         ageUnit: '歳',
         pensionLabel: '月額年金/パッシブ収入（元）',
         pensionUnit: '元/月',
+        monthlyInvestLabel: '毎月追加投資額（元）',
+        monthlyInvestUnit: '元/月',
+        reinvestLabel: '配当再投資',
+        reinvestOn: 'ON（再投資）',
+        reinvestOff: 'OFF（現金受取）',
+        capitalModeLabel: 'キャピタルゲイン処理',
+        capitalAccumulate: '含み益として保有',
+        capitalRealize: '毎年利益確定',
+        capitalReinvest: '利確後に再投資',
+        capitalDesc_accumulate: '値上がり益を資産に含めたまま保有（売却しない）',
+        capitalDesc_annualRealize: '毎年値上がり分を売却し、現金収入として受け取る',
+        capitalDesc_reinvest: '毎年値上がり分を売却後に再投入し、複利成長を実現',
         presetTitle: '🎯 ポートフォリオ方案',
         allocTitle: '⚙️ 資産配分比率',
         allocDesc: 'スライダーで配分をカスタマイズ（合計100%にしてください）',
         totalLabel: '合計：',
-        kpiYieldLabel: '期待年化利回り',
-        kpiMonthlyLabel: '月平均収入',
-        kpiTotalLabel: '累計受取総額',
+        kpiIncomeYieldLabel: '期待配当利回り',
+        kpiCapitalYieldLabel: '期待値上がり率',
+        kpiTotalYieldLabel: '期待総合利回り',
+        kpiMonthlyLabel: '月平均現金収入',
+        kpiTotalLabel: '期末資産総額',
         kpiRealLabel: '実質購買力（最終年月）',
         pieTitle: '資産配分比率',
-        lineTitle: '資産推移と累計収入',
+        lineTitle: '資産推移と累計投入額',
         tableTitle: '📊 年間キャッシュフロー明細',
         thAge: '年齢',
         thYear: '年目',
         thBalance: '資産残高',
-        thAnnual: '年間収入',
-        thMonthly: '月間収入',
+        thContribution: '追加投資',
+        thIncome: '配当収入',
+        thCapital: '値上がり益',
+        thMonthly: '月間現金収入',
         thPensionIncome: '年金+投資',
-        thCumulative: '累計収入',
+        thCumulative: '累計投入額',
         thReal: '実質購買力/月',
         riskTitle: '⚠️ リスク評価',
         riskLabel1: '最大想定損失',
@@ -318,11 +352,20 @@ function applyLanguage() {
         'age-unit': 'ageUnit',
         'pension-label': 'pensionLabel',
         'pension-unit': 'pensionUnit',
+        'monthly-invest-label': 'monthlyInvestLabel',
+        'monthly-invest-unit': 'monthlyInvestUnit',
+        'reinvest-label': 'reinvestLabel',
+        'capital-mode-label': 'capitalModeLabel',
+        'capital-opt-accumulate-text': 'capitalAccumulate',
+        'capital-opt-realize-text': 'capitalRealize',
+        'capital-opt-reinvest-text': 'capitalReinvest',
         'preset-title': 'presetTitle',
         'alloc-title': 'allocTitle',
         'alloc-desc': 'allocDesc',
         'total-label': 'totalLabel',
-        'kpi-yield-label': 'kpiYieldLabel',
+        'kpi-income-yield-label': 'kpiIncomeYieldLabel',
+        'kpi-capital-yield-label': 'kpiCapitalYieldLabel',
+        'kpi-total-yield-label': 'kpiTotalYieldLabel',
         'kpi-monthly-label': 'kpiMonthlyLabel',
         'kpi-total-label': 'kpiTotalLabel',
         'kpi-real-label': 'kpiRealLabel',
@@ -332,7 +375,9 @@ function applyLanguage() {
         'th-age': 'thAge',
         'th-year': 'thYear',
         'th-balance': 'thBalance',
-        'th-annual': 'thAnnual',
+        'th-contribution': 'thContribution',
+        'th-income': 'thIncome',
+        'th-capital': 'thCapital',
         'th-monthly': 'thMonthly',
         'th-pension-income': 'thPensionIncome',
         'th-cumulative': 'thCumulative',
@@ -356,6 +401,30 @@ function applyLanguage() {
         const label = document.getElementById(`alloc-name-${p.id}`);
         if (label) label.textContent = t(p.id);
     });
+
+    // Update reinvest toggle label
+    updateReinvestLabel();
+
+    // Update capital mode descriptions
+    updateCapitalModeDescriptions();
+}
+
+function updateReinvestLabel() {
+    const toggle = document.getElementById('reinvest-toggle');
+    const label = document.getElementById('reinvest-status');
+    if (toggle && label) {
+        label.textContent = toggle.checked ? t('reinvestOn') : t('reinvestOff');
+    }
+}
+
+function updateCapitalModeDescriptions() {
+    const selected = document.querySelector('input[name="capital-mode"]:checked');
+    const descEl = document.getElementById('capital-mode-desc');
+    if (selected && descEl) {
+        // Convert hyphenated value to camelCase for I18N key lookup
+        const modeKey = selected.value.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+        descEl.textContent = t('capitalDesc_' + modeKey);
+    }
 }
 
 // ===== ALLOCATION STATE =====
@@ -566,17 +635,26 @@ function getInputs() {
         inflation: parseFloat(document.getElementById('inflation-rate').value) / 100,
         startAge: parseInt(document.getElementById('start-age').value),
         monthlyPension: parseInt(document.getElementById('monthly-pension').value),
+        monthlyInvest: parseInt(document.getElementById('monthly-invest').value),
+        reinvestDividends: document.getElementById('reinvest-toggle').checked,
+        capitalMode: document.querySelector('input[name="capital-mode"]:checked').value,
     };
 }
 
-function calcWeightedYield() {
-    let yieldLow = 0, yieldHigh = 0;
+function calcWeightedYields() {
+    let incomeLow = 0, incomeHigh = 0, capitalLow = 0, capitalHigh = 0;
     PRODUCTS.forEach(p => {
         const w = (allocation[p.id] || 0) / 100;
-        yieldLow += w * p.yieldLow;
-        yieldHigh += w * p.yieldHigh;
+        incomeLow += w * p.incomeLow;
+        incomeHigh += w * p.incomeHigh;
+        capitalLow += w * p.capitalLow;
+        capitalHigh += w * p.capitalHigh;
     });
-    return { low: yieldLow, high: yieldHigh, mid: (yieldLow + yieldHigh) / 2 };
+    return {
+        income: { low: incomeLow, high: incomeHigh, mid: (incomeLow + incomeHigh) / 2 },
+        capital: { low: capitalLow, high: capitalHigh, mid: (capitalLow + capitalHigh) / 2 },
+        total: { mid: (incomeLow + incomeHigh + capitalLow + capitalHigh) / 2 },
+    };
 }
 
 function calcMaxLoss() {
@@ -602,36 +680,76 @@ function calcLiquidityScore() {
 }
 
 function calcCashflow(inputs) {
-    const { initialAmount, simYears, inflation, startAge, monthlyPension } = inputs;
-    const yields = calcWeightedYield();
-    const annualYield = yields.mid / 100;
+    const { initialAmount, simYears, inflation, startAge, monthlyPension,
+        monthlyInvest, reinvestDividends, capitalMode } = inputs;
+    const yields = calcWeightedYields();
+    const incomeRate = yields.income.mid / 100;
+    const capitalRate = yields.capital.mid / 100;
 
     const rows = [];
-    let cumulative = 0;
+    let balance = initialAmount;       // 投資元本（時価ベース）
+    let totalContributed = initialAmount; // 累計投入額
 
     for (let y = 0; y < simYears; y++) {
         const age = startAge + y;
-        // For younger ages, no yield reduction; for older ages, gradual reduction
+        // 年齢による利回り調整（高齢になるほどリスク資産の期待リターン低下）
         let ageAdjust = 1.0;
         if (age >= 75) ageAdjust = 0.75;
         else if (age >= 70) ageAdjust = 0.85;
         else if (age >= 65) ageAdjust = 0.93;
 
-        const effectiveYield = annualYield * ageAdjust;
-        const annualIncome = Math.round(initialAmount * effectiveYield);
-        const monthlyIncome = Math.round(annualIncome / 12);
-        const totalMonthly = monthlyIncome + monthlyPension;
-        cumulative += annualIncome;
-        const realPower = Math.round(monthlyIncome / Math.pow(1 + inflation, y + 1));
+        // 年間追加投資（年初に一括投入として計算）
+        const yearlyContribution = monthlyInvest * 12;
+        balance += yearlyContribution;
+        totalContributed += yearlyContribution;
+
+        // インカムゲイン（配当・利息）— 年初残高に対して計算
+        const incomeGain = Math.round(balance * incomeRate * ageAdjust);
+
+        // キャピタルゲイン（値上がり益）— 年初残高に対して計算
+        const capitalGain = Math.round(balance * capitalRate * ageAdjust);
+
+        // === 配当の処理 ===
+        let cashFromIncome = 0;
+        if (reinvestDividends) {
+            // 再投資: 配当を元本に加算
+            balance += incomeGain;
+        } else {
+            // 現金受取: 配当を取り出す
+            cashFromIncome = incomeGain;
+        }
+
+        // === キャピタルゲインの処理 ===
+        let cashFromCapital = 0;
+        if (capitalMode === 'accumulate') {
+            // 含み益: 資産価値に反映（売却しない）
+            balance += capitalGain;
+        } else if (capitalMode === 'annual-realize') {
+            // 毎年利益確定: 値上がり分を現金化、元本維持
+            cashFromCapital = capitalGain;
+            // balance は変化しない（値上がり分を引き出すので）
+        } else {
+            // 利確後再投資: 実現して再投入 → 結果的に含み益と同じ元本推移
+            balance += capitalGain;
+        }
+
+        // 月間現金収入の計算
+        const monthlyCashFromInvest = Math.round((cashFromIncome + cashFromCapital) / 12);
+        const totalMonthly = monthlyCashFromInvest + monthlyPension;
+        const realPower = Math.round(totalMonthly / Math.pow(1 + inflation, y + 1));
 
         rows.push({
             age,
             year: y + 1,
-            balance: initialAmount,
-            annualIncome,
-            monthlyIncome,
+            balance,
+            yearlyContribution,
+            incomeGain,
+            capitalGain,
+            cashFromIncome,
+            cashFromCapital,
+            monthlyCashFromInvest,
             totalMonthly,
-            cumulative,
+            totalContributed,
             realPower,
         });
     }
@@ -698,9 +816,9 @@ function updatePieChart() {
 function updateLineChart(cashflow) {
     const ctx = document.getElementById('lineChart').getContext('2d');
     const labels = cashflow.map(r => r.age + (currentLang === 'zh' ? '岁' : '歳'));
-    const incomeData = cashflow.map(r => r.cumulative);
-    const monthlyData = cashflow.map(r => r.monthlyIncome);
-    const realData = cashflow.map(r => r.realPower);
+    const balanceData = cashflow.map(r => r.balance);
+    const contributedData = cashflow.map(r => r.totalContributed);
+    const monthlyData = cashflow.map(r => r.totalMonthly);
 
     if (lineChart) lineChart.destroy();
 
@@ -710,8 +828,8 @@ function updateLineChart(cashflow) {
             labels,
             datasets: [
                 {
-                    label: currentLang === 'zh' ? '累计收入（元）' : '累計収入（元）',
-                    data: incomeData,
+                    label: currentLang === 'zh' ? '资产总额（元）' : '資産総額（元）',
+                    data: balanceData,
                     borderColor: '#a78bfa',
                     backgroundColor: 'rgba(167, 139, 250, 0.1)',
                     fill: true,
@@ -722,27 +840,27 @@ function updateLineChart(cashflow) {
                     yAxisID: 'y',
                 },
                 {
-                    label: currentLang === 'zh' ? '月投资收入（元）' : '月間投資収入（元）',
-                    data: monthlyData,
+                    label: currentLang === 'zh' ? '累计投入（元）' : '累計投入額（元）',
+                    data: contributedData,
                     borderColor: '#60a5fa',
+                    borderDash: [5, 3],
                     backgroundColor: 'rgba(96, 165, 250, 0.05)',
                     fill: false,
                     tension: 0.3,
                     borderWidth: 2,
                     pointRadius: 2,
                     pointHoverRadius: 5,
-                    yAxisID: 'y1',
+                    yAxisID: 'y',
                 },
                 {
-                    label: currentLang === 'zh' ? '实质购买力/月（元）' : '実質購買力/月（元）',
-                    data: realData,
-                    borderColor: '#fbbf24',
-                    borderDash: [5, 3],
+                    label: currentLang === 'zh' ? '月现金收入（元）' : '月間現金収入（元）',
+                    data: monthlyData,
+                    borderColor: '#34d399',
                     fill: false,
                     tension: 0.3,
-                    borderWidth: 1.5,
-                    pointRadius: 1,
-                    pointHoverRadius: 4,
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
                     yAxisID: 'y1',
                 },
             ]
@@ -792,7 +910,7 @@ function updateLineChart(cashflow) {
                 y1: {
                     position: 'right',
                     ticks: {
-                        color: '#60a5fa',
+                        color: '#34d399',
                         font: { size: 10 },
                         callback: (v) => v.toLocaleString()
                     },
@@ -813,6 +931,13 @@ function updateAll() {
     document.getElementById('inflation-value').textContent = (inputs.inflation * 100).toFixed(1);
     document.getElementById('age-value').textContent = inputs.startAge;
     document.getElementById('pension-value').textContent = inputs.monthlyPension.toLocaleString();
+    document.getElementById('monthly-invest-value').textContent = inputs.monthlyInvest.toLocaleString();
+
+    // Update reinvest toggle label
+    updateReinvestLabel();
+
+    // Update capital mode description
+    updateCapitalModeDescriptions();
 
     // Rebuild presets based on current age
     buildPresets();
@@ -831,18 +956,20 @@ function updateAll() {
     }
 
     // Calculate
-    const yields = calcWeightedYield();
+    const yields = calcWeightedYields();
     const cashflow = calcCashflow(inputs);
     const maxLoss = calcMaxLoss();
     const safeRatio = calcSafeRatio();
     const liquidityScore = calcLiquidityScore();
 
     // KPIs
-    document.getElementById('kpi-yield').textContent = yields.mid.toFixed(2) + '%';
+    document.getElementById('kpi-income-yield').textContent = yields.income.mid.toFixed(2) + '%';
+    document.getElementById('kpi-capital-yield').textContent = yields.capital.mid.toFixed(2) + '%';
+    document.getElementById('kpi-total-yield').textContent = yields.total.mid.toFixed(2) + '%';
     const lastRow = cashflow[cashflow.length - 1];
     const firstRow = cashflow[0];
-    document.getElementById('kpi-monthly').textContent = firstRow.monthlyIncome.toLocaleString() + ' 元';
-    document.getElementById('kpi-total').textContent = lastRow.cumulative.toLocaleString() + ' 元';
+    document.getElementById('kpi-monthly').textContent = firstRow.totalMonthly.toLocaleString() + ' 元';
+    document.getElementById('kpi-total').textContent = lastRow.balance.toLocaleString() + ' 元';
     document.getElementById('kpi-real').textContent = lastRow.realPower.toLocaleString() + ' 元';
 
     // Risk
@@ -871,10 +998,12 @@ function updateAll() {
             <td>${r.age}${ageUnit}</td>
             <td>${r.year}${yearUnit}</td>
             <td>${r.balance.toLocaleString()}</td>
-            <td>${r.annualIncome.toLocaleString()}</td>
-            <td>${r.monthlyIncome.toLocaleString()}</td>
+            <td>${r.yearlyContribution > 0 ? '+' + r.yearlyContribution.toLocaleString() : '-'}</td>
+            <td>${r.incomeGain.toLocaleString()}</td>
+            <td style="color: ${r.capitalGain >= 0 ? 'var(--accent-green)' : 'var(--accent-red, #f87171)'};">${r.capitalGain >= 0 ? '+' : ''}${r.capitalGain.toLocaleString()}</td>
+            <td>${r.monthlyCashFromInvest.toLocaleString()}</td>
             <td style="color: var(--accent-green); font-weight:600;">${r.totalMonthly.toLocaleString()}</td>
-            <td>${r.cumulative.toLocaleString()}</td>
+            <td>${r.totalContributed.toLocaleString()}</td>
             <td style="color: var(--accent-orange);">${r.realPower.toLocaleString()}</td>
         `;
         tbody.appendChild(tr);

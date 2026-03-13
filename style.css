@@ -1197,3 +1197,205 @@ tbody tr:nth-child(5n) td {
 .disclaimer-list li strong {
     color: var(--text-primary);
 }
+
+/* ===== Accent Cyan ===== */
+.kpi-value.accent-cyan {
+    color: var(--accent-cyan);
+}
+
+/* ===== Input Divider ===== */
+.input-divider {
+    height: 1px;
+    background: var(--border-glass);
+    margin: 24px 0;
+}
+
+/* ===== Toggle Switch ===== */
+.toggle-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.toggle-group>label {
+    margin-bottom: 0 !important;
+}
+
+.toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 26px;
+    transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.toggle-switch input:checked+.toggle-slider {
+    background: var(--accent-green-dim);
+    border-color: var(--accent-green);
+}
+
+.toggle-switch input:checked+.toggle-slider::before {
+    transform: translateX(22px);
+    background: var(--accent-green);
+}
+
+.toggle-status {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+/* ===== Radio Group (Capital Mode) ===== */
+.capital-mode-group {
+    margin-top: 4px;
+}
+
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 0 !important;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.radio-option:hover {
+    border-color: var(--border-hover);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.radio-option input[type="radio"] {
+    display: none;
+}
+
+.radio-custom {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.radio-custom::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-purple);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s ease;
+}
+
+.radio-option input[type="radio"]:checked~.radio-custom {
+    border-color: var(--accent-purple);
+}
+
+.radio-option input[type="radio"]:checked~.radio-custom::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.radio-option:has(input[type="radio"]:checked) {
+    border-color: var(--accent-purple);
+    background: rgba(167, 139, 250, 0.08);
+    color: var(--text-primary);
+}
+
+.capital-mode-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--bg-glass);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent-purple);
+    transition: all 0.3s ease;
+}
+
+/* ===== KPI Grid 6 cards ===== */
+.kpi-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 900px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpi-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .radio-group {
+        flex-direction: column;
+    }
+
+    .radio-option {
+        width: 100%;
+    }
+
+    .toggle-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
